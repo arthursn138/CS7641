@@ -1,0 +1,299 @@
+ \documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Spring 2023 CS4641/CS7641 A Homework 1}
+\author{Dr. Mahdi Roozbahani}
+\date{Deadline: Friday, February 10th, 11:59 pm EST}
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{bbold}
+\usepackage{diagbox}
+\usepackage{multirow}
+
+%new
+\usepackage{listings}
+
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Sharelatex Example},
+    bookmarks=true,
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+\maketitle
+\begin{itemize}
+    \item No unapproved extension of the deadline is allowed. For late submissions, please refer to the course website.
+    \item Discussion is encouraged on Ed as part of the Q/A. However, all assignments should be done individually.
+    \item \color{red}Plagiarism is a \textbf{serious offense}. You are responsible for completing your own work. You are not allowed to copy and paste, or paraphrase, or submit materials created or published by others, as if you created the materials. All materials submitted must be your own.\color{black}
+    \item \color{red}All incidents of suspected dishonesty, plagiarism, or violations of the Georgia Tech Honor Code will be subject to the institute’s Academic Integrity procedures. If we observe any (even small) similarities/plagiarisms detected by Gradescope or our TAs, \textbf{WE WILL DIRECTLY REPORT ALL CASES TO OSI}, which may, unfortunately, lead to a very harsh outcome. \textbf{Consequences can be severe, e.g., academic probation or dismissal, grade penalties, a 0 grade for assignments concerned, and prohibition from withdrawing from the class}.
+\end{itemize}
+
+\section*{Instructions}
+\begin{itemize}
+    \item We will be using Gradescope for submission and grading of assignments. 
+    \item \textbf{Unless a question explicitly states that no work is required to be shown, you must provide an explanation, justification, or calculation for your answer.}
+    \item Your write-up must be submitted in PDF form, you may use either Latex,  markdown, or any word processing software. \color{red}We will \textbf{NOT} accept handwritten work. \color{black}Make sure that your work is formatted correctly, for example submit $\sum_{i=0} x_i$ instead of \text{sum\_\{i=0\} x\_i}. 
+    \item \textbf{A useful video tutorial on LaTeX has been created by our TA team} and can be found \href{https://www.dropbox.com/s/wywx114wtfoweru/Latex\%20Tutorial.mp4?dl=0}{here} and an Overleaf document with the commands can be found \href{https://www.overleaf.com/read/tmjnjqygqkqd}{here}.
+
+    % Possibly change
+    \item \color{red}\textbf{Please answer each question in the Assignment 1 Non Programming submission in Gradescope}\color{black}  . If submitting screenshots of your work, your screenshot should be work only for that question subsection. \textbf{Submitting screenshots or files of work for questions other than the specific question may result in point deductions or incorrect grading.}
+    \item All assignments should be done individually, each student must write up and submit their own answers.
+    \item \color{red}\textbf{Graduate Students}\color{black}: You are required to complete any sections marked as Bonus for Undergrads
+\end{itemize}
+\newpage
+
+\section*{Point Distribution}
+\subsection*{Q1: Linear Algebra [38pts]}
+\begin{itemize}
+    \item 1.1 Determinant and Inverse of a Matrix [15pts]
+    \item 1.2 Characteristic Equation [8pts]
+    \item 1.3 Eigenvalues and Eigenvectors [15pts]
+\end{itemize}
+\subsection*{Q2: Expectation, Co-variance and Statistical Independence [9pts]}
+\begin{itemize}
+    \item 2.1 Covariance [5pts]
+    \item 2.2 Correlation [4pts]
+\end{itemize}
+\subsection*{Q3: Optimization [19pts: 15pts + 4pts Bonus for All]}
+\subsection*{Q4: Maximum Likelihood [25pts: 10pts + 15pts Bonus for Undergrads]}
+\begin{itemize}
+    \item 4.1 Discrete Example [10pts]
+    \item 4.2 Poisson Distribution [15pts Bonus for Undergrads]
+\end{itemize}
+\subsection*{Q5: Information Theory [35pts]}
+\begin{itemize}
+    \item 5.1 Marginal Distribution [6pts]
+    \item 5.2 Mutual Information and Entropy [19pts]
+    \item 5.3 Entropy Proofs [10pts]
+\end{itemize}
+\subsection*{Q6: Programming [2pts]}
+\subsection*{Q7: Bonus for All [15pts]}
+\newpage
+
+\section{Linear Algebra [15pts + 8pts + 15pts]}
+\subsection{Determinant and Inverse of Matrix [15pts]}
+Given a matrix $M$:
+$$M = \begin{bmatrix} 
+    2 & 1 & -3 \\ 
+    -6 & r & 2 \\
+    -2 & 4 & 2
+\end{bmatrix}$$
+\begin{enumerate}[label=(\alph*)]
+    \item Calculate the determinant of $\boldsymbol{M}$ in terms of $r$ (calculation process is required). [4pts]
+    \item For what value(s) of $r$ does $\boldsymbol{M}^{-1}$ not exist? Why doesn't $\boldsymbol{M}^{-1}$ exist in this case? What does it mean in terms of rank and singularity for these values of $r$? [3pts]
+    \item Will all values of $r$ found in part (b) allow for a column (or row) to be expressed as a linear combination of the other columns (or rows)? \textbf{If yes}, provide
+    \begin{itemize}
+        \item \textbf{either} the linear equation of the third column $\boldsymbol{C_3}$ as a linear combination of the first column $\boldsymbol{C_1}$ and second column $\boldsymbol{C_2}$
+        \item \textbf{or} the linear equation of the second row $\boldsymbol{R_2}$ as a linear combination of the first row $\boldsymbol{R_1}$ and third row $\boldsymbol{R_3}$.
+    \end{itemize}
+    \textbf{If no}, explain why. [3pts]
+    \item Write down $\boldsymbol{M}^{-1}$ for $r = 0$ (calculation process is \textbf{NOT} required). [2pts]
+    \item Find the mathematical equation that describes the relationship between the determinant of $\boldsymbol{M}$ and the determinant of $\boldsymbol{M}^{-1}$. [3pts]
+    \par\textbf{NOTE:} It may be helpful to find the determinant of $\boldsymbol{M}$ and $\boldsymbol{M}^{-1}$ for $r = 0$.
+\end{enumerate}
+
+
+
+
+
+\subsection{Characteristic Equation [8pts]}
+Consider the eigenvalue problem: 
+$$\boldsymbol{Ax} =\lambda \boldsymbol{x}, \boldsymbol{x} \neq 0$$
+where $\boldsymbol{x}$ is a non-zero eigenvector and $\lambda$ is an eigenvalue of $\boldsymbol{A}$. Prove the determinant $|\boldsymbol{A}-\lambda \boldsymbol{I}|= 0$.\\ \\
+\textbf{NOTE:} There are many ways to solve this problem. You are allowed to use linear algebra properties as part of your solution. \\
+
+
+
+
+
+\subsection{Eigenvalues and Eigenvectors [5+10pts]}
+\subsubsection{Eigenvalues [5pts]}
+Given a matrix \boldsymbol{A}:
+$$\textbf{\textit{A}}=\begin{bmatrix}
+    a & b \\
+    b & c
+\end{bmatrix}$$
+\begin{enumerate}[label=(\alph*)]
+    \item Find an expression for the eigenvalues $\lambda$ of $\textbf{\textit{A}}$ in terms of $a$, $b$, and $c$. [4pts]
+    \item Find a simple expression for the eigenvalues if $c= a$. [1pt]
+\end{enumerate}
+
+
+\subsubsection{Eigenvectors [10pts]}
+Given a matrix \boldsymbol{A}:
+$$\boldsymbol{A} = \begin{bmatrix} 
+    x & 12  \\ 
+    3 & x \\
+\end{bmatrix}$$
+\begin{enumerate}[label=(\alph*)]
+    \item Calculate the eigenvalues of $\boldsymbol{A}$ as a function of $x$ (calculation process required). [3pts]
+    \item Find the normalized eigenvectors of matrix $\boldsymbol{A}$ (calculation process required). [7pts]
+\end{enumerate}
+
+
+
+\newpage
+\section{Expectation, Co-variance and Statistical Independence [5pts + 4pts]}
+\subsection{Covariance [5pts]}
+Suppose $X$, $Y$, and $Z$ are three different random variables.
+Let $X$ obey a Bernoulli Distribution. The probability mass function for $X$ is:
+    $$p(x)=\left\{
+    \begin{array}{ c l} 
+        0.7 & x = c\\
+        0.3 & x = -c
+    \end{array}\right.$$
+where $c$ is a nonzero constant. Let $Y$ obey the Standard Normal (Gaussian) Distribution, which can be written as $Y \sim N(0,1)$. $X$ and $Y$ are statistically independent (i.e. $P(X|Y) = P(X)$). Meanwhile, let $Z = XY$. \\
+
+\newline 
+\noindent Calculate the covariance of $Y$ and $Z$ (i.e. $Cov(Y, Z)$). Do values of $c$ affect the covariance between $Y$ and $Z$? [5pts]
+
+
+\subsection{Correlation Coefficient [4pts]}
+Let $X$ and $Y$ be statistically independent random variables with $Var(X) = 7$ and $Var(Y) = 13$. We do not know $E[X]$ or $E[Y]$. Let $Z = 5X + 3Y$ . Calculate the correlation coefficient defined as $\rho(X,Z)=\frac{Cov(X,Z)}{\sqrt{Var(X)Var(Z)}}$. If applicable, please round your answer to 3 decimal places. [4pts]
+
+
+
+\newpage
+\section{Optimization [15pts + 4pts Bonus for All]}
+Optimization problems are related to minimizing a function (usually termed loss, cost or error function) or maximizing a function (such as the likelihood) with respect to some variable $x$. The Karush-Kuhn-Tucker (KKT) conditions are first-order conditions for a solution in nonlinear programming to be optimal, provided that some regularity conditions are satisfied. In this question, you will be solving the following optimization problem:
+\begin{align*}
+    \max_{x,y} \qquad & f(x,y) = xy-8y \\
+    \text{s.t.} \qquad & g_{1}(x,y) = 2x^{2}+y^{2}\leq 20 \\
+    & g_{2}(x,y) = x \leq 1
+\end{align*}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Write the Lagrange function for the maximization problem. Now change the maximum function to a minimum function (i.e. $\underset{x,y}{min} \;\; f(x,y) = xy - 8y$) and provide the Lagrange function for the minimization problem with the same constraints $g_1$ and $g_2$.  [2pts]
+        \par\textbf{NOTE:} The minimization problem is only for part (a).
+    \item List the names of all 4 groups of KKT conditions and their corresponding mathematical equations or inequalities for this specific maximization problem [2pts]
+    \item Solve for 4 possibilities formed by each constraint being active or inactive. Do not forget to check the inactive constraints for each point. Candidate points must satisfy the inactive constraints.   [7pts]
+    \item List the candidate point(s) (there is at least 1). Please round answers to 3 decimal points and use that answer for calculations in further parts. [2pts]
+    \item Find the \textbf{one} candidate point for which $f(x,y)$ is largest. Check if $L(x,y)$ is concave or convex at this point by using the \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/quadratic-approximations/a/the-hessian}{Hessian} in the \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/optimizing-multivariable-functions/a/second-partial-derivative-test}{second partial derivative test}.  [2pts]
+    \item \textbf{BONUS FOR ALL:} Make a 3D plot of the objective function $f(x,y)$ and constraints $g_1$ and $g_2$ using \href{https://www.math3d.org/}{Math3d}. Mark the maximum candidate point and include a screenshot of your plot. Briefly explain why your plot makes sense in one sentence. [4pts]
+    \par\textbf{NOTE:} Use an explicit surface for the objective function, implicit surfaces for the constraints, and a point for the maximum candidate point. \\
+\end{enumerate}
+
+\noindent\textbf{HINT:} Click \href{https://www.youtube.com/watch?v=TqN-8fxYUYY}{here} for an example maximization problem. \\
+\noindent\textbf{HINT:} Click \href{https://en.wikipedia.org/wiki/Karush-Kuhn-Tucker_conditions#Nonlinear_optimization_problem}{here} to determine how to set up the problem for minimization in part (a) and for KKT conditions in part (b).\\
+
+
+
+\newpage
+\section{Maximum Likelihood [10pts + 15pts Bonus for Undergrads]}
+\subsection{Discrete Example [10pts]}
+Mastermind Mahdi decides to give a challenge to his students for their MLE Final. He provides a spinner with 10 sections, each numbered 1 through 10. The students can change the sizes of each section, meaning that they can select the probability the spinner lands on a certain section. Mahdi then proposes that the students will get a 100 on their final if they can spin the spinner 10 times such that it doesn't land on section 1 during the first 9 spins and lands on section 1 on the 10th spin. If the probability of the spinner landing on section 1 is $\theta$, what value of $\theta$ should the students select to most likely ensure they get a 100 on their final? Use your knowledge of Maximum Likelihood Estimation to get a 100 on the final. \\\\\textbf{NOTE: } \textbf{You must specify the log-likelihood function and use MLE to solve this problem for full credit.} You may assume that the log-likelihood function is concave for this question \\\\
+
+\subsection{Poisson distribution [15 pts]: Bonus for undergrads}
+The Poisson distribution is defined as:
+$$P(X=k)=\frac{\lambda^k e^{-\lambda}}{k!} (k=0,1,2,...).$$
+\begin{enumerate}[label=(\alph*)]
+    \item Let $X_1 \sim Poisson(\lambda)$, and $x_1$ be an observed value of $X_1$. What is the likelihood given $\lambda$? [2 pts]
+    \item Now, assume we are given $n$ such values. Let $(X_1, ...,X_n)\sim Poisson(\lambda)$ where $X_1, ...,X_n$ are i.i.d. random variables, and $x_1,...,x_n$ be observed values of $X_1, ...,X_n$. What is the likelihood of this data given $\lambda$? You may leave your answer in product form. [3 pts]
+    \item What is the maximum likelihood estimator of $\lambda$? [10 pts]
+\end{enumerate}
+
+\newpage
+\section{Information Theory [6pts + 19pts + 10pts]}
+\subsection{Marginal Distribution [6pts]}
+
+Suppose the joint probability distribution of two binary random variables $X$ and $Y$ are given as follows. $X$ are the rows, and $Y$ are the columns.
+$$\renewcommand*{\arraystretch}{1.3}
+\begin{tabular}{|c|c|c|}
+    \hline 
+    \diagbox{X}{Y} & {0} & {1} \\ 
+    \hline 0 & {$\frac{5}{16}$} & {$\frac{1}{16}$} \\ 
+    \hline 1 & {$\frac{1}{2}$} & {$\frac{1}{8}$} \\ 
+    \hline
+\end{tabular}$$
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show the marginal distribution of $X$ and $Y$, respectively. [3pts]
+    \item Find mutual information $I(X,Y)$ for the joint probability distribution in the previous question to at least 5 decimal places (please use base 2 to compute logarithm) [3pts]
+\end{enumerate}
+
+\subsection{Mutual Information and Entropy [19pts]}
+% temp link until something more permanent (perhaps on canvas)
+A recent study has shown symptomatic infections are responsible for higher transmission rates. Using the \href{https://docs.google.com/spreadsheets/d/1qPhfnnXYaaZDv7lX7CcReDrLcwUKO2sSUTxNeu6AKj8/edit?usp=sharing}{data} collected from positively tested patients, we wish to determine which feature(s) have the greatest impact on whether or not some will present with symptoms. To do this, we will compute the entropies, conditional entropies, and mutual information of select features. Please use base 2 when computing logarithms.
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{ID}}} & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Vaccine Doses \\ ($X_1$)\end{tabular}}}} & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Wears Mask? \\ ($X_2$)\end{tabular}}}} & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Underlying \\ Conditions ($X_3$)\end{tabular}}}} & \multicolumn{1}{c|}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Symptomatic \\ ($Y$)\end{tabular}}}} \\
+\multicolumn{1}{|c|}{} & \multicolumn{1}{c|}{} & \multicolumn{1}{c|}{} & \multicolumn{1}{c|}{} & \multicolumn{1}{c|}{} \\ \hline \hline
+1 & H & F & T & T \\ \hline
+2 & H & F & F & F \\ \hline
+3 & H & F & T & T \\ \hline
+4 & M & F & T & T \\ \hline
+5 & L & T & T & T \\ \hline
+6 & L & T & F & F \\ \hline
+7 & L & T & F & T \\ \hline
+8 & L & F & T & F \\ \hline
+9 & L & T & T & T \\ \hline
+10 & M & T & T & T \\ \hline
+\end{tabular}
+\caption{Vaccine Doses: \{(H) booster, (M) 2 doses, (L) 1 dose\}}
+\label{table:1}
+\end{table}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Find entropy $H(Y)$ to at least 3 decimal places. [3pts]
+    \item Find conditional entropy $H(Y|X_1)$ and $H(Y|X_3)$ to at least 3 decimal places. [8pts]
+    \item Find mutual information $I(X_1, Y)$ and $I(X_3, Y)$ to at least 3 decimal places and determine which one ($X_1$ or $X_3$) is more informative. [4pts]
+    \item Find joint entropy $H(Y, X_2)$ to at least 3 decimal places. [4pts]
+\end{enumerate}
+
+
+\subsection{Entropy Proofs [10pts]}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Write the discrete case mathematical definition for $H(X|Y)$ and $H(X)$. [3pts]
+    \item \textbf{Using the mathematical definition of $H(X)$ and $H(X|Y)$ from part (a)}, prove that $I(X,Y) = 0$ if $X$ and $Y$ are statistically independent. (Note: you must provide a mathematical proof and cannot use the visualization shown in class \href{https://mahdi-roozbahani.github.io/CS46417641-summer2022/other/CEandMI_Illustration.jpg}{found here}) [7pts] \\
+    \newline
+    \color{red}{\textbf{Start from: $I(X,Y) = H(X)-H(X|Y)$}}
+\end{enumerate}
+
+
+\newpage
+
+\section{Programming [2 pts]}
+See the Gradescope submission for Assignment 1 Programming to submit warmup.py and env.pkl files to complete this section.
+
+\section{Bonus for All [15 pts]}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $X$, $Y$ be two statistically independent $N(0, 1)$ random variables, and $P$, $Q$ be random variables defined as: 
+    \begin{align*}
+        P &= 7X + 2XY^2 \\
+        Q &= X
+    \end{align*}
+    Calculate the variance $Var(P + Q)$. [5pts]
+    
+    \textbf{HINT:} The following equality may be useful: $Var(XY) = E[X^2Y^2] - [E(XY)]^2$ \\
+    \textbf{HINT:} $E[Y^4] = \int_{-\infty}^{\infty}y^4 f_Y(y)dy$ where $f_Y(y)$ is the probability density function of $Y$.
+    
+    \item Suppose that $X$ and $Y$ have joint pdf given by:
+    $$f_{X,Y}(x,y)=\left\{
+    \begin{aligned}
+        &\frac{x}{2}e^{-y} & 0 \leq x \leq 2, y \geq 0 \\
+        &0 & otherwise\\
+    \end{aligned}\right.$$
+    What are the marginal probability density functions for $X$ and  $Y$? [5 pts]
+
+    \item A person decides to toss a biased coin with $P(heads)=0.3$ repeatedly until he gets a head. He will make at most 6 tosses. Let the random variable $Y$ denote the number of heads. Find the probability distribution of $Y$. Then, find the variance of $Y$. [5 pts]    
+\end{enumerate}
+
+\end{document}
