@@ -41,71 +41,76 @@ class KMeans(object):
         Hint: Please initialize centers by randomly sampling points from the dataset in case the autograder fails.
         """
 
-        raise NotImplementedError
+        n, d = self.points.shape
+        self.centers = np.random.choice(np.reshape(self.points, n), self.k, replace=False)
+        return self.centers
 
-    def kmpp_init(self):# [3 pts]
-        """
-            Use the intuition that points further away from each other will probably be better initial centers
-        Return:
-            self.centers : K x D numpy array, the centers.
-        """
+    # def kmpp_init(self):# [3 pts]
+    #     """
+    #         Use the intuition that points further away from each other will probably be better initial centers
+    #     Return:
+    #         self.centers : K x D numpy array, the centers.
+    #     """
+    #     dists = pairwise_dist(self.points, vishhh)
+    #     # sum rows > largest sums are the farthests --- ??????
+    #     # pick k largests sums of distances
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
-    def update_assignment(self):  # [5 pts]
-        """
-            Update the membership of each point based on the closest center
-        Return:
-            self.assignments : numpy array of length N, the cluster assignment for each point
-        Hint: You could call pairwise_dist() function
-        """        
+    # def update_assignment(self):  # [5 pts]
+    #     """
+    #         Update the membership of each point based on the closest center
+    #     Return:
+    #         self.assignments : numpy array of length N, the cluster assignment for each point
+    #     Hint: You could call pairwise_dist() function
+    #     """        
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
-    def update_centers(self):  # [5 pts]
-        """
-            update the cluster centers
-        Return:
-            self.centers: new centers, a new K x D numpy array of float dtype, where K is the number of clusters, and D is the dimension.
+    # def update_centers(self):  # [5 pts]
+    #     """
+    #         update the cluster centers
+    #     Return:
+    #         self.centers: new centers, a new K x D numpy array of float dtype, where K is the number of clusters, and D is the dimension.
 
-        HINT: Points may be integer, but the centers should not have to be. Watch out for dtype casting!
-        """
+    #     HINT: Points may be integer, but the centers should not have to be. Watch out for dtype casting!
+    #     """
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
-    def get_loss(self):  # [5 pts]
-        """
-            The loss will be defined as the sum of the squared distances between each point and it's respective center.
-        Return:
-            self.loss: a single float number, which is the objective function of KMeans.
-        """
+    # def get_loss(self):  # [5 pts]
+    #     """
+    #         The loss will be defined as the sum of the squared distances between each point and it's respective center.
+    #     Return:
+    #         self.loss: a single float number, which is the objective function of KMeans.
+    #     """
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
-    def train(self):    # [10 pts]
-        """
-            Train KMeans to cluster the data:
-                0. Recall that centers have already been initialized in __init__
-                1. Update the cluster assignment for each point
-                2. Update the cluster centers based on the new assignments from Step 1
-                3. Check to make sure there is no mean without a cluster, 
-                   i.e. no cluster center without any points assigned to it.
-                   - In the event of a cluster with no points assigned, 
-                     pick a random point in the dataset to be the new center and 
-                     update your cluster assignment accordingly.
-                4. Calculate the loss and check if the model has converged to break the loop early.
-                   - The convergence criteria is measured by whether the percentage difference 
-                     in loss compared to the previous iteration is less than the given 
-                     relative tolerance threshold (self.rel_tol). 
-                5. Iterate through steps 1 to 4 max_iters times. Avoid infinite looping!
+    # def train(self):    # [10 pts]
+    #     """
+    #         Train KMeans to cluster the data:
+    #             0. Recall that centers have already been initialized in __init__
+    #             1. Update the cluster assignment for each point
+    #             2. Update the cluster centers based on the new assignments from Step 1
+    #             3. Check to make sure there is no mean without a cluster, 
+    #                i.e. no cluster center without any points assigned to it.
+    #                - In the event of a cluster with no points assigned, 
+    #                  pick a random point in the dataset to be the new center and 
+    #                  update your cluster assignment accordingly.
+    #             4. Calculate the loss and check if the model has converged to break the loop early.
+    #                - The convergence criteria is measured by whether the percentage difference 
+    #                  in loss compared to the previous iteration is less than the given 
+    #                  relative tolerance threshold (self.rel_tol). 
+    #             5. Iterate through steps 1 to 4 max_iters times. Avoid infinite looping!
                 
-        Return:
-            self.centers: K x D numpy array, the centers
-            self.assignments: Nx1 int numpy array
-            self.loss: final loss value of the objective function of KMeans.
-        """
+    #     Return:
+    #         self.centers: K x D numpy array, the centers
+    #         self.assignments: Nx1 int numpy array
+    #         self.loss: final loss value of the objective function of KMeans.
+    #     """
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
 
 def pairwise_dist(x, y):  # [5 pts]
@@ -119,4 +124,6 @@ def pairwise_dist(x, y):  # [5 pts]
                 x[i, :] and y[j, :]
         """
 
-        raise NotImplementedError
+        pwdist = np.sqrt(np.sum(np.square(x[:,np.newaxis,:] - y), axis = -1))
+        
+        return pwdist
