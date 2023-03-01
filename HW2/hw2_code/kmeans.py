@@ -41,7 +41,9 @@ class KMeans(object):
         Hint: Please initialize centers by randomly sampling points from the dataset in case the autograder fails.
         """
 
-        raise NotImplementedError
+        centers = np.random.choice(self.points.shape[0], self.k, replace=False)
+        self.centers = self.points[centers]
+        return self.centers
 
     def kmpp_init(self):# [3 pts]
         """
@@ -49,6 +51,16 @@ class KMeans(object):
         Return:
             self.centers : K x D numpy array, the centers.
         """
+
+        centers = np.array([self.points[np.random.choice(self.points.shape[0], 1)]]) # Initializes 1 center at random
+        dists = [] # in numpy standards
+        for i in range(self.K):
+            for j in len(self.points):
+                dists += pairwise_dist(centers[i], self.points[j])
+                c = self.points[np.argmax(dists)] # EXCEPT THE ONES ALREADY DRAWN!!!
+            
+            centers += centers # AQUI É APPEND
+            dists = dists[:,np.newaxis]
 
         raise NotImplementedError
 
@@ -59,8 +71,19 @@ class KMeans(object):
             self.assignments : numpy array of length N, the cluster assignment for each point
         Hint: You could call pairwise_dist() function
         """        
+        
+        dist = []
+        assignment = []
+        for i in len(self.points):
+            for j in range(self.K):
+                dist += pairwise_dist(self.points[i], self.centers[j]) # Checks for each point, which center it is closest to
 
-        raise NotImplementedError
+            assignment += np.argmin(dist) # Assigns for point j the kth cluster it is closest to -- issue with np and []?
+            # IF EQUAL
+            dist = []
+
+        self.assignments = np.asarray(assignment) # convert the list "assignment" to the np array self.assignments
+        return self.assignments
 
     def update_centers(self):  # [5 pts]
         """
@@ -119,4 +142,6 @@ def pairwise_dist(x, y):  # [5 pts]
                 x[i, :] and y[j, :]
         """
 
-        raise NotImplementedError
+        x = x[:,np.newaxis,:]
+        return np.add.reduce((x**2 + y**2 - 2*x*y), axis = -1)**0.5 # not what I want to submit, but should do it for now
+        # return np.sqrt(np.sum(np.square(x[:,np.newaxis,:] - y), axis = -1))
