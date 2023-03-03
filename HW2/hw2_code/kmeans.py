@@ -41,7 +41,7 @@ class KMeans(object):
         Hint: Please initialize centers by randomly sampling points from the dataset in case the autograder fails.
         """
 
-        centers = np.random.choice(self.points.shape[0], self.k, replace=False)
+        centers = np.random.choice(self.points.shape[0], self.K, replace=False)
         self.centers = self.points[centers]
         return self.centers
 
@@ -52,17 +52,14 @@ class KMeans(object):
             self.centers : K x D numpy array, the centers.
         """
 
-        centers = np.array([self.points[np.random.choice(self.points.shape[0], 1)]]) # Initializes 1 center at random
-        dists = [] # in numpy standards
-        for i in range(self.K):
-            for j in len(self.points):
-                dists += pairwise_dist(centers[i], self.points[j])
-                c = self.points[np.argmax(dists)] # EXCEPT THE ONES ALREADY DRAWN!!!
-            
-            centers += centers # AQUI É APPEND
-            dists = dists[:,np.newaxis]
+        # # # centers = np.array([self.points[np.random.choice(self.points.shape[0], 1)]]) # Initializes 1 center at random
+        # # # dists = [] # in numpy standards
+        # # # for i in range(self.K):
+        # # #     for j in len(self.points):
+        # # #         dists += pairwise_dist(centers[i], self.points[j])
+        # # #         c = self.points[np.argmax(dists)] # EXCEPT THE ONES ALREADY DRAWN!!!
 
-        raise NotImplementedError
+        return self.centers
 
     def update_assignment(self):  # [5 pts]
         """
@@ -70,19 +67,10 @@ class KMeans(object):
         Return:
             self.assignments : numpy array of length N, the cluster assignment for each point
         Hint: You could call pairwise_dist() function
-        """        
+        """
         
-        dist = []
-        assignment = []
-        for i in len(self.points):
-            for j in range(self.K):
-                dist += pairwise_dist(self.points[i], self.centers[j]) # Checks for each point, which center it is closest to
-
-            assignment += np.argmin(dist) # Assigns for point j the kth cluster it is closest to -- issue with np and []?
-            # IF EQUAL
-            dist = []
-
-        self.assignments = np.asarray(assignment) # convert the list "assignment" to the np array self.assignments
+        d = pairwise_dist(self.points, self.centers)
+        self.assignments = np.argmin(d, axis=-1)
         return self.assignments
 
     def update_centers(self):  # [5 pts]
@@ -94,7 +82,11 @@ class KMeans(object):
         HINT: Points may be integer, but the centers should not have to be. Watch out for dtype casting!
         """
 
-        raise NotImplementedError
+        for i in range(self.K):
+            cluster_curr = self.points[np.where(self.assignments == i)[0]] # Assume all clusters have at least one point assigned
+            self.centers[i] = np.mean(cluster_curr, axis=0)
+            
+        return self.centers
 
     def get_loss(self):  # [5 pts]
         """
@@ -103,7 +95,13 @@ class KMeans(object):
             self.loss: a single float number, which is the objective function of KMeans.
         """
 
-        raise NotImplementedError
+        l = np.zeros(self.K)
+        for i in range(self.K):
+            l[i] = np.sum(np.square(self.points[np.where(self.assignments == i)[0]] - self.centers[i]))
+
+        self.loss = np.sum(l)
+
+        return self.loss
 
     def train(self):    # [10 pts]
         """
@@ -127,8 +125,32 @@ class KMeans(object):
             self.assignments: Nx1 int numpy array
             self.loss: final loss value of the objective function of KMeans.
         """
+        
+        # print("tolerance: ", self.rel_tol)
+        # print("max iterations: ", self.max_iters)
+        prev_loss = 1e7
 
-        raise NotImplementedError
+        for i in range(self.max_iters):
+            self.assignments = self.update_assignment()
+            self.centers = self.update_centers()
+            for j in range(self.K):
+                if len(np.where(self.assignments == j)[0]) == 0:
+                    c = np.random.choice(self.points.shape[0])
+                    self.centers[j] = self.points[c]
+                    self.assignments = self.update_assignment()
+
+            loss = self.get_loss()
+            # print("Loss in iteration ", i, " is: ", loss)
+            dl = (abs(loss - prev_loss)/prev_loss)
+            # print("dl = ", dl)
+
+            if dl <= self.rel_tol:
+                return self.centers, self.assignments, self.loss
+            else:
+                prev_loss = loss
+                # print(i, " iterations done")
+
+        return self.centers, self.assignments, self.loss
 
 
 def pairwise_dist(x, y):  # [5 pts]
@@ -142,6 +164,5 @@ def pairwise_dist(x, y):  # [5 pts]
                 x[i, :] and y[j, :]
         """
 
-        x = x[:,np.newaxis,:]
-        return np.add.reduce((x**2 + y**2 - 2*x*y), axis = -1)**0.5 # not what I want to submit, but should do it for now
-        # return np.sqrt(np.sum(np.square(x[:,np.newaxis,:] - y), axis = -1))
+        dist = np.sqrt(abs(np.sum(np.square(x), axis=-1, keepdims=True) + np.sum(np.square(y), axis=-1) - 2*(np.dot(x, y.T))))
+        return dist
