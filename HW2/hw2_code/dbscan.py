@@ -16,7 +16,24 @@ class DBSCAN(object):
         If a point is unvisited or is a noise point (has fewer than the minimum number of neighbor points), then its cluster assignment should be -1.
         Set the first cluster as C = 0
         """
-        raise NotImplementedError
+
+        cluster_idx = -np.ones(self.dataset.shape[0]) # Initializes all points as unvisited/noise
+        visitedIndices = set()
+        C = 0   # Initialize the first cluster as 0
+        for i in range(self.dataset.shape[0]):
+            index = i
+            print("i = ", i)
+            if np.size(np.where(np.array(list(visitedIndices)) == i)) == 0:
+                visitedIndices.add(i)
+                print("visited: ", visitedIndices)
+                neighborPts = self.regionQuery(i)
+                print("neighbors of ", i, " : ", neighborPts)
+                if np.size(neighborPts) >= self.minPts:
+                    print("current cluster: ", C)
+                    self.expandCluster(index, neighborPts, C, cluster_idx, visitedIndices)
+                    C += 1
+
+        return cluster_idx
 
     def expandCluster(self, index, neighborIndices, C, cluster_idx, visitedIndices):
         """Expands cluster C using the point P, its neighbors, and any points density-reachable to P and updates indices visited, cluster assignments accordingly
@@ -33,7 +50,23 @@ class DBSCAN(object):
             np.concatenate(), np.unique(), np.sort(), and np.take() may be helpful here
             A while loop may be better than a for loop
         """
-        raise NotImplementedError
+
+        cond = True
+        while cond:
+            for j in neighborIndices:
+                if np.size(np.where(np.array(list(visitedIndices)) == j)) == 0:
+                    visitedIndices.add(j)
+                    neighborsPrime = self.regionQuery(j)
+                    if neighborsPrime.size >= self.minPts:
+                        neighborIndices = np.unique(np.sort(np.concatenate((neighborIndices, neighborsPrime), axis=None)))
+
+                if cluster_idx[j] == -1:
+                    cluster_idx[j] = C
+
+            if np.array_equal(neighborIndices, np.array(list(visitedIndices))):
+                cond = False
+
+        return
 
     def regionQuery(self, pointIndex):
         """Returns all points within P's eps-neighborhood (including P)
@@ -44,5 +77,7 @@ class DBSCAN(object):
             indices: (I, ) int numpy array containing the indices of all points within P's eps-neighborhood
         Hint: pairwise_dist (implemented above) and np.argwhere may be helpful here
         """
-        raise NotImplementedError
         
+        indices = np.ndarray.flatten(np.argwhere(pairwise_dist(self.dataset[pointIndex], self.dataset) <= self.eps))
+        return indices
+            
