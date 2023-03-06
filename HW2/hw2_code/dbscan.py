@@ -54,7 +54,7 @@ class DBSCAN(object):
         cond = True
         while cond:
             for j in neighborIndices:
-                if np.size(np.where(np.array(list(visitedIndices)) == j)) == 0:
+                if np.size(np.where(np.sort(np.array(list(visitedIndices))) == j)) == 0:
                     visitedIndices.add(j)
                     neighborsPrime = self.regionQuery(j)
                     if neighborsPrime.size >= self.minPts:
@@ -63,7 +63,10 @@ class DBSCAN(object):
                 if cluster_idx[j] == -1:
                     cluster_idx[j] = C
 
-            if np.array_equal(neighborIndices, np.array(list(visitedIndices))):
+            if np.array_equal(neighborIndices, np.sort(np.array(list(visitedIndices)))):
+                cond = False
+        
+            elif np.array_equal(self.dataset.shape[0], np.shape(np.array(list(visitedIndices)))[0]):
                 cond = False
 
         return
