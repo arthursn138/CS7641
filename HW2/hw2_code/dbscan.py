@@ -22,14 +22,14 @@ class DBSCAN(object):
         C = 0   # Initialize the first cluster as 0
         for i in range(self.dataset.shape[0]):
             index = i
-            print("i = ", i)
+            # print("i = ", i)
             if np.size(np.where(np.array(list(visitedIndices)) == i)) == 0:
                 visitedIndices.add(i)
-                print("visited: ", visitedIndices)
+                # print("visited: ", visitedIndices)
                 neighborPts = self.regionQuery(i)
-                print("neighbors of ", i, " : ", neighborPts)
+                # print("neighbors of ", i, " : ", neighborPts)
                 if np.size(neighborPts) >= self.minPts:
-                    print("current cluster: ", C)
+                    # print("current cluster: ", C)
                     self.expandCluster(index, neighborPts, C, cluster_idx, visitedIndices)
                     C += 1
 

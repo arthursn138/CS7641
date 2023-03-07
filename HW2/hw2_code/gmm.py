@@ -34,8 +34,9 @@ class GMM(object):
             Add keepdims=True in your np.sum() function to avoid broadcast error. 
         """
 
-        raise NotImplementedError
-
+        prob = np.exp(logit - np.max(logit)) / np.sum(np.exp(logit - np.max(logit)), axis=-1, keepdims=True)
+        return prob
+    
     def logsumexp(self, logit):  # [5pts]
         """
         Args:
@@ -46,7 +47,8 @@ class GMM(object):
             The keepdims parameter could be handy
         """
 
-        raise NotImplementedError
+        s = np.sum(np.exp(logit + np.max(logit)), axis=-1, keepdims=True)
+        return s
 
     # for undergraduate student
     def normalPDF(self, points, mu_i, sigma_i):  # [5pts]
@@ -80,7 +82,16 @@ class GMM(object):
             try using another method involving the current arguments to get the value of D
         """
 
-        raise NotImplementedError
+        D = mu_i.shape[0]
+        try:
+            inv = np.linalg.inv(sigma_i)
+        except:
+            inv = np.linalg.inv(sigma_i + SIGMA_CONST)
+
+        semi = (points - mu_i) @ inv
+        NN =  np.sum((-0.5 * (semi @ (semi.T * (points - mu_i).T))), axis=0)
+        normal_pdf = (1/((2*np.pi) ** (D/2))) * (np.linalg.det(sigma_i) ** (-0.5)) * np.exp(NN)
+        return normal_pdf
 
 
 
