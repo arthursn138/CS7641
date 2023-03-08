@@ -59,7 +59,7 @@ class KMeans(object):
         # # #         dists += pairwise_dist(centers[i], self.points[j])
         # # #         c = self.points[np.argmax(dists)] # EXCEPT THE ONES ALREADY DRAWN!!!
 
-        return self.centers
+        raise NotImplementedError
 
     def update_assignment(self):  # [5 pts]
         """

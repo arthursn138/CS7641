@@ -89,7 +89,7 @@ class GMM(object):
             inv = np.linalg.inv(sigma_i + SIGMA_CONST)
 
         semi = (points - mu_i) @ inv
-        NN =  np.sum((-0.5 * (semi @ (semi.T * (points - mu_i).T))), axis=0)
+        NN =  np.sum((-0.5 * (semi.T * (points - mu_i).T)), axis=0)
         # NN =  -0.5 * (semi @ (semi.T * (points - mu_i).T))
         normal_pdf = (1/((2*np.pi) ** (D/2))) * (np.linalg.det(sigma_i) ** (-0.5)) * np.exp(NN)
         return normal_pdf
@@ -135,13 +135,18 @@ class GMM(object):
         """
 
         # === graduate implementation
-        #if full_matrix is True:
-            #...
+        if full_matrix is True:
 
-        # === undergraduate implementation
-        #if full_matrix is False:
-            # ...
-        raise NotImplementedError
+            ll = np.ones((self.points.shape[0], self.K))
+            for i in range(self.points.shape[0]):
+                for k in range(self.K):
+                    pdf = self.multinormalPDF(self.points[i], mu[k], sigma[k])
+                    ll[i,k] = np.log( pi[k] + LOG_CONST ) + np.log( pdf + LOG_CONST )
+            
+            # print(ll)
+            # print(ll.shape)
+
+        return ll
 
     def _E_step(self, pi, mu, sigma, full_matrix = FULL_MATRIX , **kwargs):  # [5pts]
         """
