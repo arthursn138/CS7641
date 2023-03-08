@@ -34,7 +34,7 @@ class GMM(object):
             Add keepdims=True in your np.sum() function to avoid broadcast error. 
         """
 
-        prob = np.exp(logit - np.max(logit)) / np.sum(np.exp(logit - np.max(logit)), axis=-1, keepdims=True)
+        prob = np.exp(logit - np.max(logit, axis=-1, keepdims=True)) / np.sum(np.exp(logit - np.max(logit, axis=-1, keepdims=True)), axis=-1, keepdims=True)
         return prob
     
     def logsumexp(self, logit):  # [5pts]
@@ -47,24 +47,24 @@ class GMM(object):
             The keepdims parameter could be handy
         """
 
-        s = np.sum(np.exp(logit + np.max(logit)), axis=-1, keepdims=True)
+        s = np.log(np.sum(np.exp(logit - np.max(logit, axis=-1, keepdims=True)), axis=-1, keepdims=True)) + np.max(logit, axis=-1, keepdims=True)
         return s
 
-    # for undergraduate student
-    def normalPDF(self, points, mu_i, sigma_i):  # [5pts]
-        """
-        Args:
-            points: N x D numpy array
-            mu_i: (D,) numpy array, the center for the ith gaussian.
-            sigma_i: DxD numpy array, the covariance matrix of the ith gaussian.
-        Return:
-            pdf: (N,) numpy array, the probability density value of N data for the ith gaussian
+    # # for undergraduate student
+    # def normalPDF(self, points, mu_i, sigma_i):  # [5pts]
+    #     """
+    #     Args:
+    #         points: N x D numpy array
+    #         mu_i: (D,) numpy array, the center for the ith gaussian.
+    #         sigma_i: DxD numpy array, the covariance matrix of the ith gaussian.
+    #     Return:
+    #         pdf: (N,) numpy array, the probability density value of N data for the ith gaussian
 
-        Hint:
-            np.diagonal() should be handy.
-        """
+    #     Hint:
+    #         np.diagonal() should be handy.
+    #     """
 
-        raise NotImplementedError
+    #     raise NotImplementedError
 
     # for grad students
     def multinormalPDF(self, points, mu_i, sigma_i):  # [5pts]
@@ -85,11 +85,12 @@ class GMM(object):
         D = mu_i.shape[0]
         try:
             inv = np.linalg.inv(sigma_i)
-        except:
+        except np.linalg.LinAlgError:
             inv = np.linalg.inv(sigma_i + SIGMA_CONST)
 
         semi = (points - mu_i) @ inv
         NN =  np.sum((-0.5 * (semi @ (semi.T * (points - mu_i).T))), axis=0)
+        # NN =  -0.5 * (semi @ (semi.T * (points - mu_i).T))
         normal_pdf = (1/((2*np.pi) ** (D/2))) * (np.linalg.det(sigma_i) ** (-0.5)) * np.exp(NN)
         return normal_pdf
 
@@ -111,7 +112,14 @@ class GMM(object):
         np.random.seed(5) #Do Not Remove Seed
 
 
-        raise NotImplementedError
+        pi = np.ones((self.K, 1)) / self.K
+        mu = np.ones((self.K, self.D))
+        for i in range(self.K):
+            mu[i] = self.points[int(np.random.uniform(0, self.N-1))]
+        # mu = np.eye(3)
+        sigma = np.ones((self.K, self.D, self.D)) * np.eye(self.D)
+
+        return pi, mu, sigma
 
     def _ll_joint(self, pi, mu, sigma, full_matrix=FULL_MATRIX, **kwargs):  # [10 pts]
         """
