@@ -52,14 +52,32 @@ class KMeans(object):
             self.centers : K x D numpy array, the centers.
         """
 
-        # # # centers = np.array([self.points[np.random.choice(self.points.shape[0], 1)]]) # Initializes 1 center at random
-        # # # dists = [] # in numpy standards
-        # # # for i in range(self.K):
-        # # #     for j in len(self.points):
-        # # #         dists += pairwise_dist(centers[i], self.points[j])
-        # # #         c = self.points[np.argmax(dists)] # EXCEPT THE ONES ALREADY DRAWN!!!
+        subset = self.points[np.random.choice(self.points.shape[0], size=int(0.01*self.points.shape[0]), replace=False)]
+        first_index = np.random.choice(subset.shape[0])
+        first = subset[first_index]
+        print(first)
+        subset = np.delete(subset, first_index, axis=0)
 
-        raise NotImplementedError
+        candidates = np.zeros((self.K, self.points.shape[1]))
+        centers = np.zeros((self.K, self.points.shape[1]))
+        centers[0] = first
+        dists = np.ones(candidates.shape[0]) # NO REAL TEM QUE SER O VETOR REDUZIDO
+
+        # print(np.arange((1), (k)))
+
+        for i in range(self.K - 1):
+            for j in range(candidates.shape[0]):
+                d = np.linalg.norm(centers[i] - candidates[j])
+            dists[j] = d
+            # print(centers[i])
+            # print(dists)
+            # print(np.where(dists == max(dists))[0])
+            # print(i)
+            centers[i+1] = subset[np.where(dists == max(dists))[0]]
+            # print(i)
+            kk = np.where(dists == max(dists))[0]
+            subset = np.delete(subset, kk, axis=0)
+        return self.centers
 
     def update_assignment(self):  # [5 pts]
         """
