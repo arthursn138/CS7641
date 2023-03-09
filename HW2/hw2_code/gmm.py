@@ -112,7 +112,7 @@ class GMM(object):
         np.random.seed(5) #Do Not Remove Seed
 
 
-        pi = np.ones((self.K, 1)) / self.K
+        pi = np.ones((self.K,)) / self.K
         mu = np.ones((self.K, self.D))
         for i in range(self.K):
             mu[i] = self.points[int(np.random.uniform(0, self.N-1))]
@@ -141,7 +141,7 @@ class GMM(object):
             for i in range(self.points.shape[0]):
                 for k in range(self.K):
                     pdf = self.multinormalPDF(self.points[i], mu[k], sigma[k])
-                    ll[i,k] = np.log( pi[k] + LOG_CONST ) + np.log( pdf + LOG_CONST )
+                    ll[i, k] = np.log( pi[k] + LOG_CONST ) + np.log( pdf + LOG_CONST )
             
             # print(ll)
             # print(ll.shape)
@@ -163,14 +163,10 @@ class GMM(object):
             You should be able to do this with just a few lines of code by using _ll_joint() and softmax() defined above.
         """
         # === graduate implementation
-        #if full_matrix is True:
-            # ...
+        if full_matrix is True:
+            gamma = self.softmax(self._ll_joint(pi, mu, sigma, full_matrix=FULL_MATRIX))
 
-        # === undergraduate implementation
-        #if full_matrix is False:
-            # ...
-
-        raise NotImplementedError
+        return gamma
 
     def _M_step(self, gamma, full_matrix=FULL_MATRIX, **kwargs):  # [10pts]
         """
@@ -188,14 +184,23 @@ class GMM(object):
             Undergrads: To simplify your calculation in sigma, make sure to only take the diagonal terms in your covariance matrix
         """
         # === graduate implementation
-        #if full_matrix is True:
-            # ...
+        if full_matrix is True:
+            N_k = gamma.sum(axis=0)
 
-        # === undergraduate implementation
-        #if full_matrix is False:
-            # ...
+            pi_new = N_k / self.points.shape[0]
+            print(pi_new)
 
-        raise NotImplementedError
+            mu_new = ( (gamma.T @ self.points).T / N_k ).T
+            # print(mu_new)
+
+            diff = np.ones((self.K, self.points.shape[0], self.points.shape[1]))
+            sigma_new = np.ones((self.K, self.points.shape[1], self.points.shape[1]))
+            for i in range(self.K):
+                diff = self.points - mu_new[i]
+                sigma_new[i] = ( np.dot(gamma[:,i].T * diff.T, diff) ) / N_k[i]
+            # print(sigma_new)
+        
+        return pi_new, mu_new, sigma_new
 
     def __call__(self, full_matrix=FULL_MATRIX, abs_tol=1e-16, rel_tol=1e-16, **kwargs):  # No need to change
         """
