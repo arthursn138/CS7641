@@ -188,7 +188,7 @@ class GMM(object):
             N_k = gamma.sum(axis=0)
 
             pi_new = N_k / self.points.shape[0]
-            print(pi_new)
+            # print(pi_new)
 
             mu_new = ( (gamma.T @ self.points).T / N_k ).T
             # print(mu_new)
