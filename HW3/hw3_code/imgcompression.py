@@ -79,8 +79,19 @@ class ImgCompression(object):
 
         Hint: numpy.matmul may be helpful for reconstructing color images
         """
+        
+        if S_compressed.ndim == 1:
+            k = np.shape(S_compressed)[0]
+            s_matrix = S_compressed * np.eye(k, k)
 
-        raise NotImplementedError
+        else:
+            k = np.shape(S_compressed)[1]
+            s_matrix = np.zeros((3, k, k))
+            for i in range(3):
+                s_matrix[i] = S_compressed[i] * np.eye(k, k)
+        
+        Xrebuild = np.matmul(np.matmul(U_compressed, s_matrix), V_compressed)
+        return Xrebuild
 
 
     def compression_ratio(self, X: np.ndarray, k: int) -> float:  # [4pts]
@@ -95,7 +106,10 @@ class ImgCompression(object):
             compression_ratio: float of proportion of storage used by compressed image
         """
 
-        raise NotImplementedError
+        u, s, v = self.svd(X)
+        uc, sc, vc = self.compress(u, s, v, k)
+        compression_ratio = ( np.size(X) / (np.size(uc) + np.size(sc) + np.size(vc)) ) ** (-1)
+        return compression_ratio
 
     def recovered_variance_proportion(self, S: np.ndarray, k: int) -> float:  # [4pts]
         """
