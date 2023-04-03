@@ -29,7 +29,15 @@ class PCA(object):
             self.S: (min(N,D), ) numpy array
             self.V: (min(N,D), D) numpy array
         """
-        raise NotImplementedError
+        
+        # Centering
+        centered = X - X.mean(axis=0)
+        U, S, V = np.linalg.svd(centered, full_matrices=False)
+        # Clipping (notebook says D < N)
+        _, D = np.shape(X)
+        self.U = U[:, :D]
+        self.S = S[:D]
+        self.V = (V[:D, :D])
 
     def transform(self, data: np.ndarray, K: int = 2) -> np.ndarray:  # 2 pts
         """
@@ -45,8 +53,11 @@ class PCA(object):
 
         Hint: Make sure you remember to first center your data by subtracting the mean of each feature.
         """
-
-        raise NotImplementedError
+        
+        self.fit(data)
+        centered = data - data.mean(axis=0)
+        X_new = np.dot(centered, (self.V[:K, :]).T)
+        return X_new
 
     def transform_rv(
         self, data: np.ndarray, retained_variance: float = 0.99
@@ -67,7 +78,21 @@ class PCA(object):
         Hint: Make sure you remember to first center your data by subtracting the mean of each feature.
 
         """
-        raise NotImplementedError
+        
+        self.fit(data)
+        centered = data - data.mean(axis=0)
+        cumm_var = 0
+        K = 0
+        for i in range(len(self.S)):
+            cumm_var += self.S[i]/np.sum(self.S)
+            if cumm_var >= retained_variance:
+                K = i
+
+        if K == 0:
+            K = np.shape(self.S)[0] - 1
+
+        X_new = np.dot(centered, (self.V[:K,:]).T)
+        return X_new
 
     def get_V(self) -> np.ndarray:
         """ Getter function for value of V """
@@ -89,7 +114,25 @@ class PCA(object):
             
         Return: None
         """
-        raise NotImplementedError
+
+        # We know that numpy's svd func returns the singular values sorted in descending order
+        X_new = self.transform(X, K=2)
+        print(f"Data shape before PCA: {X.shape}")
+        print(f"Data shape before PCA: {X_new.shape}")
+        print(f"Labels: {np.unique(y)}")
+        
+        for i in range(X_new.shape[0]):
+            if y[i] == 0:
+                color = 'blue'
+            elif y[i] == 1:
+                color = 'magenta'
+            elif y[i] == 2:
+                color = 'red'
+
+            ax = plt.scatter(X_new[i,0], X_new[i,1], c=color, marker="x")
+        
+        # list = [str(np.unique(y)[0]), str(np.unique(y)[1]), str(np.unique(y)[2])]
+        # plt.legend(handles=ax.legend_elements()[0], labels=list)
 
         ##################### END YOUR CODE ABOVE, DO NOT CHANGE BELOW #######################
         plt.legend()

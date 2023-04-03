@@ -16,7 +16,9 @@ class Regression(object):
         Return:
             A float value
         """
-        raise NotImplementedError
+        N = pred.shape[0]
+        rmse = np.sqrt(np.sum(np.square(pred - label))/N)
+        return rmse
 
     def construct_polynomial_feats(
         self, x: np.ndarray, degree: int
@@ -61,7 +63,16 @@ class Regression(object):
                 [ x_{3,1}^3  x_{3,2}^3]]]
 
         """
-        raise NotImplementedError
+        
+        N, D = np.shape(x)
+        feat = np.zeros((N, degree+1, D))
+        feat[:,0,:] = np.ones(D)
+        for i in np.arange(N):
+            feat[i,1:,:] = x[i]
+            for j in np.arange(degree)+1:
+                feat[i,j,:] = x[i] ** j
+        
+        return feat
 
     def predict(self, xtest: np.ndarray, weight: np.ndarray) -> np.ndarray:  # [5pts]
         """
@@ -75,7 +86,9 @@ class Regression(object):
         Return:
             prediction: (N,1) numpy array, the predicted labels
         """
-        raise NotImplementedError
+        
+        prediction = np.dot(xtest, weight)
+        return prediction
 
     # =================
     # LINEAR REGRESSION
@@ -95,7 +108,9 @@ class Regression(object):
         Hints:
             - For pseudo inverse, you can use numpy linear algebra function (np.linalg.pinv)
         """
-        raise NotImplementedError
+        
+        weight = np.dot(np.linalg.pinv(xtrain), ytrain)
+        return weight
 
     def linear_fit_GD(
         self,
@@ -173,7 +188,13 @@ class Regression(object):
             - For pseudo inverse, you can use numpy linear algebra function (np.linalg.pinv)
             - You should adjust your I matrix to handle the bias term differently than the rest of the terms
         """
-        raise NotImplementedError
+        
+        N, D = xtrain.shape
+        I = c_lambda * np.eye(D)
+        I[0,0] = 0
+        pinv = np.linalg.inv(xtrain.T @ xtrain + I) @ xtrain.T
+        weight = np.dot(pinv, ytrain)
+        return weight
 
     def ridge_fit_GD(
         self,

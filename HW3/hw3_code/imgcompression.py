@@ -123,7 +123,14 @@ class ImgCompression(object):
            recovered_var: float (array of 3 floats for color image) corresponding to proportion of recovered variance
         """
 
-        raise NotImplementedError
+        if S.ndim > 1:    
+            S_compressed = S[:,0:k]
+            recovered_var = np.sum(np.square(S_compressed), axis=1) / np.sum(np.square(S), axis=1)
+        else:
+            S_compressed = S[0:k]
+            recovered_var = np.sum(np.square(S_compressed)) / np.sum(np.square(S))
+        
+        return recovered_var
 
     def memory_savings(
         self, X: np.ndarray, U: np.ndarray, S: np.ndarray, V: np.ndarray, k: int
