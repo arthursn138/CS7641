@@ -133,7 +133,20 @@ class Regression(object):
             weight: (D,1) numpy array, the weights of linear regression model
             loss_per_epoch: (epochs,) list of floats, rmse of each epoch
         """
-        raise NotImplementedError
+        
+        N, D = xtrain.shape
+        weight = np.zeros((D,1))
+        loss_per_epoch = []
+
+        for i in range(int(epochs)):
+            diff = ytrain - self.predict(xtrain, weight)
+            weight = weight + (learning_rate/N) * np.dot(xtrain.T, diff)
+            pred = self.predict(xtrain, weight)
+            rmseloss = self.rmse(pred, ytrain)
+            loss_per_epoch.append(rmseloss)
+
+        return weight, loss_per_epoch
+
 
     def linear_fit_SGD(
         self,
@@ -166,7 +179,20 @@ class Regression(object):
         weight for one datapoint at a time, but for each epoch, you'll
         need to go through all of the points.
         """
-        raise NotImplementedError
+
+        N, D = xtrain.shape
+        weight = np.zeros((D,1))
+        loss_per_step = []
+
+        for i in range(int(epochs)):
+            for j in range(N):
+                diff = ytrain[j] - self.predict(xtrain[j], weight)
+                weight = weight + (learning_rate * xtrain[j].T * diff)[:,np.newaxis]
+                pred = self.predict(xtrain, weight)
+                rmseloss = self.rmse(pred, ytrain)
+                loss_per_step.append(rmseloss)
+
+        return weight, loss_per_step
 
     # =================
     # RIDGE REGRESSION
@@ -221,7 +247,18 @@ class Regression(object):
             weight: (D,1) numpy array, the weights of linear regression model
             loss_per_epoch: (epochs,) list of floats, rmse of each epoch
         """
-        raise NotImplementedError
+        N, D = xtrain.shape
+        weight = np.zeros((D,1))
+        loss_per_epoch = []
+
+        for i in range(int(epochs)):
+            diff = ytrain - self.predict(xtrain, weight)
+            weight = weight + (learning_rate/N) * (np.dot(xtrain.T, diff) - (c_lambda*weight))
+            pred = self.predict(xtrain, weight)
+            rmseloss = self.rmse(pred, ytrain)
+            loss_per_epoch.append(rmseloss)
+
+        return weight, loss_per_epoch
 
     def ridge_fit_SGD(
         self,
@@ -255,7 +292,20 @@ class Regression(object):
         weight for one datapoint at a time, but for each epoch, you'll
         need to go through all of the points.
         """
-        raise NotImplementedError
+        
+        N, D = xtrain.shape
+        weight = np.zeros((D,1))
+        loss_per_step = []
+
+        for i in range(int(epochs)):
+            for j in range(N):
+                diff = ytrain[j] - self.predict(xtrain[j], weight)
+                weight = weight + (learning_rate * ((xtrain[j].T * diff)[:,np.newaxis] - (1/N)*np.dot(c_lambda, weight)))
+                pred = self.predict(xtrain, weight)
+                rmseloss = self.rmse(pred, ytrain)
+                loss_per_step.append(rmseloss)
+
+        return weight, loss_per_step
 
     def ridge_cross_validation(
         self, X: np.ndarray, y: np.ndarray, kfold: int = 10, c_lambda: float = 100
@@ -279,7 +329,28 @@ class Regression(object):
                 split X and y into 10 equal-size folds
                 use 90 percent for training and 10 percent for test
         """
-        raise NotImplementedError
+        
+        batchsize = int(X.shape[0]/kfold)
+        x_comb = np.empty((0, X.shape[1]))
+        y_comb = np.empty((0, 1))
+        loss_per_fold = []
+
+        for i in range(batchsize):
+            # print(i)
+            x_batch = X[i*kfold : (i+1)*kfold]
+            y_batch = y[i*kfold : (i+1)*kfold]
+
+            x_comb = np.concatenate((x_comb, x_batch))
+            y_comb = np.concatenate((y_comb, y_batch))
+            weight = self.ridge_fit_closed(x_comb, y_comb, c_lambda)
+            # print('shape X:', x_comb.shape, ' ; shape weight:', weight.shape)
+            pred = self.predict(x_batch, weight)
+            rmse = self.rmse(pred, y_batch)
+            loss_per_fold.append(rmse)
+
+        print(loss_per_fold)
+        return loss_per_fold
+
 
     def hyperparameter_search(
         self, X: np.ndarray, y: np.ndarray, lambda_list: List[float], kfold: int
