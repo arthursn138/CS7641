@@ -14,7 +14,9 @@ class LogisticRegression(object):
         Return:
             (N, D) numpy array, whose values are transformed by sigmoid function to the range (0, 1)
         """
-        raise NotImplementedError
+        
+        sig = 1 / (1 + np.exp(-s))
+        return sig
 
     def bias_augment(self, x: np.ndarray) -> np.ndarray: # [3pts]
         """Prepend a column of 1's to the x matrix
@@ -25,7 +27,9 @@ class LogisticRegression(object):
         Returns:
             x_aug: (np.ndarray): (N, D + 1) numpy array, N data points each with a column of 1s and D features
         """
-        raise NotImplementedError
+        
+        x_aug = np.insert(x, 0, 1, axis=1)
+        return x_aug
 
     def predict_probs(self, x_aug: np.ndarray, theta: np.ndarray) -> np.ndarray: # [5pts]
         """Given model weights theta and input data points x, calculate the logistic regression model's
@@ -39,7 +43,10 @@ class LogisticRegression(object):
             h_x (np.ndarray): (N, 1) numpy array, the predicted probabilities of each data point being the positive label
                 this result is h(x) = P(y = 1 | x)
         """
-        raise NotImplementedError
+        
+        xtheta = np.matmul(x_aug, theta)
+        h_x = self.sigmoid(xtheta)
+        return h_x
 
     def predict_labels(self, h_x: np.ndarray) -> np.ndarray: # [2pts]
         """Given model weights theta and input data points x, calculate the logistic regression model's
@@ -52,7 +59,10 @@ class LogisticRegression(object):
             y_hat (np.ndarray): (N, 1) numpy array, the predicted labels of each data point
                 0 for negative label, 1 for positive label
         """
-        raise NotImplementedError
+        
+        y = np.where(h_x > 0.5, h_x, 0)
+        y_hat = np.where(y <= 0.5, y, 1)
+        return y_hat
 
     def loss(self, y: np.ndarray, h_x: np.ndarray) -> float: # [3pts]
         """Given the true labels y and predicted probabilities h_x, calculate the
@@ -64,7 +74,9 @@ class LogisticRegression(object):
         Return:
             loss (float)
         """
-        raise NotImplementedError
+        
+        loss = (-1/y.shape[0]) * np.sum((y*np.log(h_x) + (1-y)*np.log(1-h_x)))
+        return loss
 
     def gradient(self, x_aug: np.ndarray, y: np.ndarray, h_x: np.ndarray) -> np.ndarray: # [3pts]
         """
@@ -80,7 +92,9 @@ class LogisticRegression(object):
             grad (np.ndarray): (D + 1, 1) numpy array,
                 the gradient of the loss function with respect to the parameters theta.
         """
-        raise NotImplementedError
+        
+        grad = (1/y.shape[0]) * np.matmul(x_aug.T, (h_x - y))
+        return grad
 
     def accuracy(self, y: np.ndarray, y_hat: np.ndarray) -> float: # [2pts]
         """Calculate the accuracy of the predicted labels y_hat
@@ -92,7 +106,11 @@ class LogisticRegression(object):
         Return:
             accuracy of the given parameters theta on data x, y
         """
-        raise NotImplementedError
+        
+        acc = abs(y - y_hat)
+        falses = np.count_nonzero(acc)
+        accuracy = (y.shape[0] - falses)/y.shape[0]
+        return accuracy
 
     def evaluate(
         self, x: np.ndarray, y: np.ndarray, theta: np.ndarray
@@ -111,7 +129,11 @@ class LogisticRegression(object):
             Tuple[float, float]: loss, accuracy
         """
 
-        raise NotImplementedError
+        h_x = self.predict_probs(self.bias_augment(x), theta)
+        y_hat = self.predict_labels(h_x)
+        loss = self.loss(y, h_x)
+        accuracy = self.accuracy(y, y_hat)
+        return [loss, accuracy]
 
     def fit(
         self,
@@ -157,7 +179,17 @@ class LogisticRegression(object):
         ### START STUDENT CODE ###
         ##########################
 
-        raise NotImplementedError
+        theta = np.zeros((x_train.shape[1]+1, 1))
+        xt_aug = self.bias_augment(x_train)
+        xv_aug = self.bias_augment(x_val)
+        for i in range(int(epochs)):
+            h_x = self.predict_probs(xt_aug, theta)
+            grad = self.gradient(xt_aug, y_train, h_x)
+            theta = theta - lr * grad
+            if i % 100 == 0:
+                self.update_evaluation_lists(x_train, y_train, x_val, y_val, theta, epochs)
+
+        return theta
 
         ########################
         ### END STUDENT CODE ###

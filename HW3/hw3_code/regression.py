@@ -68,10 +68,14 @@ class Regression(object):
         feat = np.zeros((N, degree+1, D))
         feat[:,0,:] = np.ones(D)
         for i in np.arange(N):
-            feat[i,1:,:] = x[i]
-            for j in np.arange(degree)+1:
-                feat[i,j,:] = x[i] ** j
-        
+            if x.ndim >1:
+                feat[i,1:,:] = x[i]
+                for j in np.arange(degree)+1:
+                    feat[i,j,:] = x[i] ** j
+            else:
+                for j in np.arange(degree)+1:
+                    feat[i,j] = x[i] ** j
+
         return feat
 
     def predict(self, xtest: np.ndarray, weight: np.ndarray) -> np.ndarray:  # [5pts]
