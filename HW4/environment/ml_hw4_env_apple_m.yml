@@ -1,0 +1,19 @@
+name: ml_hw4
+channels:
+    - apple
+    - conda-forge
+dependencies:
+    - matplotlib
+    - numpy
+    - imageio
+    - scikit-learn
+    - notebook
+    - jupyterlab
+    - keras
+    - pandas
+    - tensorflow-deps
+    - pip
+
+    - pip:
+      - tensorflow-macos
+      - tensorflow-metal
