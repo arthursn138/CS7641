@@ -93,9 +93,10 @@ class dlnet:
         be modified in the method.)
 
         '''
-        # TODO: IMPLEMENT THIS METHOD
-        
-        raise NotImplementedError
+        Leaky_Relu = np.copy(u)
+        Leaky_Relu = np.where(Leaky_Relu > 0, Leaky_Relu, alpha*Leaky_Relu)
+
+        return Leaky_Relu
         
 
     def Tanh(self, u):
@@ -111,9 +112,11 @@ class dlnet:
         be modified in the method.)
 
         '''
-        # TODO: IMPLEMENT THIS METHOD
         
-        raise NotImplementedError
+        Tanh = np.copy(u)
+        Tanh = np.tanh(Tanh)
+
+        return Tanh
     
     
     def dL_Relu(self,alpha, u):
@@ -146,9 +149,8 @@ class dlnet:
         return: MSE 1x1: loss value 
         '''
         
-        # TODO: IMPLEMENT THIS METHOD
-
-        raise NotImplementedError
+        MSE = (1/(2*y.shape[1])) * np.sum(np.square(y - yh))
+        return MSE
 
     @staticmethod
     def _dropout(u, prob):
@@ -162,11 +164,11 @@ class dlnet:
         Hint: scale the units after dropout
               use np.random.choice to sample from Bernoulli(prob) the inactivated nodes for each iteration  
         '''
-        # TODO: IMPLEMENT THIS METHOD
         
-        raise NotImplementedError
-
-
+        dropout_mask = np.random.choice([0, 1], size=u.shape, p=[prob, 1-prob])
+        u_after_dropout = (u * dropout_mask) * (1 / (1 - prob))
+        
+        return u_after_dropout, dropout_mask
 
     def forward(self, x, use_dropout):
         '''
@@ -181,18 +183,24 @@ class dlnet:
         '''  
         self.ch['X'] = x #keep
         
-        # TODO: IMPLEMENT THIS METHOD
-        u1 = None # IMPLEMENT THIS LINE
-        o1 = None # IMPLEMENT THIS LINE
+        p = 0.3 #hyperparam
+
+        theta1 = self.param['theta1'] 
+        b1 = self.param['b1']
+        theta2 = self.param['theta2'] 
+        b2 = self.param['b2']
+
+        u1 = np.matmul(theta1, x) + b1
+        o1 = self.Leaky_Relu(0.05, u1)
 
         if use_dropout: #keep
-            o1, dropout_mask = None # IMPLEMENT THIS LINE
+            o1, dropout_mask = self._dropout(o1, p)
             self.ch['u1'], self.ch['mask'], self.ch['o1'] = u1, dropout_mask, o1 #keep
         else: #keep
             self.ch['u1'], self.ch['o1'] = u1, o1 #keep
 
-        u2 = None # IMPLEMENT THIS LINE
-        o2 = None # IMPLEMENT THIS LINE
+        u2 = np.matmul(theta2, o1) + b2
+        o2 = self.Tanh(u2)
         self.ch['u2'], self.ch['o2'] = u2, o2 #keep
 
         return o2 #keep
@@ -298,14 +306,14 @@ class dlnet:
         
         raise NotImplementedError
 
-        # for i in ....:
+        # # for i in ....:
 
 
-            # Print every one iteration for local test, and every 1000th iteration for AG and 1.2
-            print_multiple = 1 if local_test else 1000 #keep
-            if i % print_multiple == 0: #keep
-                print ("Loss after iteration %i: %f" %(i, loss)) #keep 
-                self.loss.append(loss) #keep
+        #     # Print every one iteration for local test, and every 1000th iteration for AG and 1.2
+        #     print_multiple = 1 if local_test else 1000 #keep
+        #     if i % print_multiple == 0: #keep
+        #         print ("Loss after iteration %i: %f" %(i, loss)) #keep 
+        #         self.loss.append(loss) #keep
        
     
     #bonus for undergraduate students 
@@ -349,15 +357,15 @@ class dlnet:
         
         raise NotImplementedError
 
-        # for i in ....:
+        # # for i in ....:
 
 
-            # Print every one iteration for local test, and every 1000th iteration for AG and 1.3
-            print_multiple = 1 if local_test else 1000 #keep
-            if i % print_multiple == 0: #keep
-                print ("Loss after iteration %i: %f" %(i, loss)) #keep
-                self.loss.append(loss) #keep
-                self.batch_y.append(y_batch) #keep
+        #     # Print every one iteration for local test, and every 1000th iteration for AG and 1.3
+        #     print_multiple = 1 if local_test else 1000 #keep
+        #     if i % print_multiple == 0: #keep
+        #         print ("Loss after iteration %i: %f" %(i, loss)) #keep
+        #         self.loss.append(loss) #keep
+        #         self.batch_y.append(y_batch) #keep
 
 
     def predict(self, x): 
