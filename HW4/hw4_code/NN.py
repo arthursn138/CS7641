@@ -183,7 +183,8 @@ class dlnet:
         '''  
         self.ch['X'] = x #keep
         
-        p = 0.3 #hyperparam
+        p = self.dropout_prob
+        alpha = self.alpha
 
         theta1 = self.param['theta1'] 
         b1 = self.param['b1']
@@ -191,7 +192,7 @@ class dlnet:
         b2 = self.param['b2']
 
         u1 = np.matmul(theta1, x) + b1
-        o1 = self.Leaky_Relu(0.05, u1)
+        o1 = self.Leaky_Relu(alpha, u1)
 
         if use_dropout: #keep
             o1, dropout_mask = self._dropout(o1, p)
@@ -224,24 +225,48 @@ class dlnet:
         by N. Make sure you avoid cascading divisions by N where you might accidentally divide your 
         derivative by N^2 or greater.
         '''
-       # TODO: IMPLEMENT THIS METHOD
 
-        dLoss_o2 = None # IMPLEMENT THIS LINE
-        dLoss_u2 = None # IMPLEMENT THIS LINE
-        dLoss_theta2 = None # IMPLEMENT THIS LINE
-        dLoss_b2 = None # IMPLEMENT THIS LINE
-        dLoss_o1 = None # IMPLEMENT THIS LINE
+        u1, o1, u2, o2, = self.ch['u1'], self.ch['o1'], self.ch['u2'], self.ch['o2']
+        theta2 = self.param['theta2']
+        x = self.ch['X']
+        p = self.dropout_prob
+        alpha = self.alpha
+
+        # print('o1', o1.shape)
+        # print('theta2', theta2.shape)
+
+        dLoss_o2 = o2 - y
+        # print('dLo2', dLoss_o2.shape)
+        dLoss_u2 = dLoss_o2 * self.dTanh(u2)
+        # print('dLu2', dLoss_u2.shape)
+        dLoss_theta2 = (1/x.shape[1]) * np.matmul(dLoss_u2, o1.T)
+        # print('dLt2', dLoss_theta2.shape)
+        dLoss_b2 = (1/x.shape[1]) * np.sum(dLoss_u2 * 1, keepdims=True)
+        # print('dLb2: ', dLoss_b2.shape)
+
+        # print('===============')
+        # print('dLu2', dLoss_u2.shape,' ; theta2', theta2.shape)
+
+        dLoss_o1 =  (1/x.shape[1]) * np.matmul(theta2.T, dLoss_u2) #Divide by N??
+        # print('dLo1', dLoss_o1.shape)
         
+        # print('===============')
+
         if use_dropout:
-            dLoss_u1 = None # IMPLEMENT THIS LINE
+            dropout_mask = self.ch['mask']
+            # print('Dropout mask:', dropout_mask)
+            # print(dropout_mask.shape)
+            dLoss_u1 = dLoss_o1 * dropout_mask * (1/(1-p)) * self.dL_Relu(alpha, u1) 
         else:
-            dLoss_u1 = None # IMPLEMENT THIS LINE
+            dLoss_u1 = dLoss_o1 * self.dL_Relu(alpha, u1)
 
 
-        dLoss_theta1 = None # IMPLEMENT THIS LINE
-        dLoss_b1 = None # IMPLEMENT THIS LINE
+        dLoss_theta1 = np.matmul(dLoss_u1, x.T)
+        dLoss_b1 = np.sum(dLoss_u1 * 1, axis=1, keepdims=True)
         
         dLoss = {'theta1': dLoss_theta1, 'b1': dLoss_b1, 'theta2': dLoss_theta2, 'b2': dLoss_b2}
+        # print(dLoss)
+        # print(dLoss.get('b2'))
         return dLoss
 
 
@@ -259,13 +284,14 @@ class dlnet:
         HINT: both self.change and self.param need to be updated for use_momentum=True and only self.param needs to be updated when use_momentum=False
               momentum records are kept in self.change
         '''
-        # TODO: IMPLEMENT THIS METHOD
-
+        
         for layer in dLoss:
             if use_momentum:
-                continue # IMPLEMENT THIS LINE
+                self.change[layer] = self.momentum * self.change[layer] + dLoss[layer]
+                self.param[layer] = self.param[layer] - self.lr * self.change[layer]
             else:
-                continue # IMPLEMENT THIS LINE
+                self.param[layer] = self.param[layer] - self.lr * dLoss[layer]
+
 
     def backward(self, y, yh, use_dropout, use_momentum):
         '''
@@ -281,9 +307,11 @@ class dlnet:
 
         Hint: make calls to compute_gradients and update_weights
         '''    
-        # TODO: IMPLEMENT THIS METHOD
         
-        raise NotImplementedError
+        dLoss = self.compute_gradients(y, yh, use_dropout)
+        dLoss_theta2, dLoss_b2, dLoss_theta1, dLoss_b1 = dLoss['theta2'], dLoss['b2'], dLoss['theta1'], dLoss['b1']
+        self.update_weights(dLoss, use_momentum)
+        return dLoss_theta2, dLoss_b2, dLoss_theta1, dLoss_b1
 
 
     def gradient_descent(self, x, y, iter = 60000, use_momentum=False, local_test=False):
@@ -301,20 +329,20 @@ class dlnet:
         ''' 
         
         self.nInit() #keep
-        
-        # TODO: IMPLEMENT THIS METHOD
-        
-        raise NotImplementedError
 
-        # # for i in ....:
+        for i in range(iter):
+            yh = self.forward(x, use_dropout=self.use_dropout)
+            self.backward(y, yh, use_dropout=self.use_dropout, use_momentum=use_momentum)
+            loss = self.nloss(y, yh)
 
+            # Print every one iteration for local test, and every 1000th iteration for AG and 1.2
+            print_multiple = 1 if local_test else 1000 #keep
+            if i % print_multiple == 0: #keep
+                print ("Loss after iteration %i: %f" %(i, loss)) #keep 
+                self.loss.append(loss) #keep
 
-        #     # Print every one iteration for local test, and every 1000th iteration for AG and 1.2
-        #     print_multiple = 1 if local_test else 1000 #keep
-        #     if i % print_multiple == 0: #keep
-        #         print ("Loss after iteration %i: %f" %(i, loss)) #keep 
-        #         self.loss.append(loss) #keep
-       
+        return iter
+    
     
     #bonus for undergraduate students 
     def batch_gradient_descent(self, x, y, use_momentum, iter = 60000, local_test=False):
@@ -352,20 +380,28 @@ class dlnet:
         '''
         
         self.nInit() #keep
-        
-        # TODO: IMPLEMENT THIS METHOD
-        
-        raise NotImplementedError
 
-        # # for i in ....:
+        self.iter = 0
 
+        for i in range(iter):
+            x_batch = x[self.iter : self.iter + self.batch_size]
+            y_batch = y[self.iter : self.iter + self.batch_size]
+            self.iter = self.iter + self.batch_size
+            if x_batch.shape[0] < self.batch_size:
+                self.iter = self.batch_size - x_batch.shape[0]
+                x_batch = np.concatenate((x_batch, x[:self.batch_size - x_batch.shape[0]]))
+                y_batch = np.concatenate((y_batch, y[:self.batch_size - y_batch.shape[0]]))
 
-        #     # Print every one iteration for local test, and every 1000th iteration for AG and 1.3
-        #     print_multiple = 1 if local_test else 1000 #keep
-        #     if i % print_multiple == 0: #keep
-        #         print ("Loss after iteration %i: %f" %(i, loss)) #keep
-        #         self.loss.append(loss) #keep
-        #         self.batch_y.append(y_batch) #keep
+            yh_batch = self.forward(x_batch, use_dropout=self.use_dropout)
+            self.backward(y_batch, yh_batch, use_dropout=self.use_dropout, use_momentum=use_momentum)
+            loss = self.nloss(y_batch, yh_batch)
+
+            # Print every one iteration for local test, and every 1000th iteration for AG and 1.3
+            print_multiple = 1 if local_test else 1000 #keep
+            if i % print_multiple == 0: #keep
+                print ("Loss after iteration %i: %f" %(i, loss)) #keep
+                self.loss.append(loss) #keep
+                self.batch_y.append(y_batch) #keep
 
 
     def predict(self, x): 
