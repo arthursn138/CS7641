@@ -7,6 +7,15 @@ from tensorflow.keras.layers import LeakyReLU
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+# # VS Code was not letting me import the way it was originally implemented, so for local tests I needed those workaround:
+# from tensorflow import keras
+# from keras import models
+# from keras import layers
+# from keras import datasets
+# from keras.models import Sequential
+# from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Activation, Dropout
+# from keras.layers import LeakyReLU
+
 
 class CNN(object):
     def __init__(self):
@@ -30,9 +39,32 @@ class CNN(object):
         Return: model
         '''
 
-        #TODO: implement this
-        raise NotImplementedError
+        model = tf.keras.models.Sequential()
+        model.add(tf.keras.Input(shape=(32,32,3)))
+        model.add(tf.keras.layers.Conv2D(8, 3, strides=1, padding="same"))
+        model.add(tf.keras.layers.LeakyReLU(alpha=0.1))
+        model.add(tf.keras.layers.Conv2D(32, 3, strides=1, padding="same"))
+        model.add(tf.keras.layers.LeakyReLU(alpha=0.1))
+        model.add(tf.keras.layers.MaxPooling2D())
+        model.add(tf.keras.layers.Dropout(rate=0.30))
+        model.add(tf.keras.layers.Conv2D(32, 3, strides=1, padding="same"))
+        model.add(tf.keras.layers.LeakyReLU(alpha=0.1))
+        model.add(tf.keras.layers.Conv2D(64, 3, strides=1, padding="same"))
+        model.add(tf.keras.layers.LeakyReLU(alpha=0.1))
+        model.add(tf.keras.layers.MaxPooling2D())
+        model.add(tf.keras.layers.Dropout(rate=0.30))
+        model.add(tf.keras.layers.Flatten(input_shape=(None, 8, 8, 64)))
+        model.add(tf.keras.layers.Dense(256, activation=LeakyReLU(0.1)))
+        model.add(tf.keras.layers.Dropout(rate=0.5))
+        model.add(tf.keras.layers.Dense(128, activation=LeakyReLU(0.1)))
+        model.add(tf.keras.layers.Dropout(rate=0.5))
+        model.add(tf.keras.layers.Dense(10))
+        model.add(tf.keras.layers.Softmax())
 
+        # for layer in model.layers:
+        #     print(layer.output_shape)
+
+        return model
     
     def compile_net(self, model):
         '''
@@ -47,8 +79,10 @@ class CNN(object):
         Return: model
 
         '''
-        self.model = model
+        self.model = self.create_net()
+        self.model.compile(optimizer="Adam", loss="CategoricalCrossentropy", metrics=["CategoricalAccuracy"])
+        return self.model
 
-        #TODO: implement this
-        raise NotImplementedError
+
+        
 

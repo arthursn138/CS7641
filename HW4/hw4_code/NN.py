@@ -382,15 +382,25 @@ class dlnet:
         self.nInit() #keep
 
         self.iter = 0
+        # print(x.shape)
+        # print(len(x))
+        # print(x)
 
         for i in range(iter):
-            x_batch = x[self.iter : self.iter + self.batch_size]
-            y_batch = y[self.iter : self.iter + self.batch_size]
-            self.iter = self.iter + self.batch_size
-            if x_batch.shape[0] < self.batch_size:
-                self.iter = self.batch_size - x_batch.shape[0]
-                x_batch = np.concatenate((x_batch, x[:self.batch_size - x_batch.shape[0]]))
-                y_batch = np.concatenate((y_batch, y[:self.batch_size - y_batch.shape[0]]))
+            if self.iter + self.batch_size < len(x[1]):
+                x_batch = x[:, self.iter : self.iter + self.batch_size]
+                y_batch = y[:, self.iter : self.iter + self.batch_size]
+                self.iter = self.iter + self.batch_size
+            else:
+                xnew = x[:, self.iter:]
+                ynew = y[:, self.iter:]
+                self.iter = len(x[1]) % self.iter
+                xnnew = x[:, :self.iter]
+                ynnew = y[:, :self.iter]
+                # print(xnew.shape)
+                # print(xnnew.shape)
+                x_batch = np.concatenate((xnew, xnnew), axis=1)
+                y_batch = np.concatenate((ynew, ynnew), axis=1)
 
             yh_batch = self.forward(x_batch, use_dropout=self.use_dropout)
             self.backward(y_batch, yh_batch, use_dropout=self.use_dropout, use_momentum=use_momentum)

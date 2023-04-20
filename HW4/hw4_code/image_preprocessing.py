@@ -1,7 +1,9 @@
 from __future__ import print_function
 import tensorflow as tf
 from tensorflow.keras import layers
-
+# VS Code was not letting me import the way it was originally implemented, so for local tests I needed those workaround:
+# from tensorflow import keras
+# from keras import layers
 
 def data_preprocessing(IMG_SIZE=32):
     '''
@@ -13,7 +15,20 @@ def data_preprocessing(IMG_SIZE=32):
     # HINT :You can resize your images with tf.keras.layers.Resizing,
     # You can rescale pixel values with tf.keras.layers.Rescaling
     
-    raise NotImplementedError
+    # # # # print(IMG_SIZE)
+
+    # # # model = tf.keras.models.Sequential([
+    # # #     tf.keras.layers.Resizing(height=IMG_SIZE, width=IMG_SIZE),
+    # # #     tf.keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),
+    # # #     tf.keras.layers.Rescaling(scale=1./255)
+    # # #     ])
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Resizing(height=IMG_SIZE, width=IMG_SIZE))
+    model.add(tf.keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)))
+    model.add(tf.keras.layers.Rescaling(scale=1./255))
+    
+    return model
+
     
 
 def data_augmentation():
@@ -25,7 +40,12 @@ def data_augmentation():
     return tf.keras.Sequential object containing the above mentioned augmentation layers
     '''
     
-    raise NotImplementedError
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.RandomFlip(mode="horizontal"))
+    model.add(tf.keras.layers.RandomRotation(factor=0.1))
+    model.add(tf.keras.layers.RandomZoom(-0.2, -0.2))
+    
+    return model
 
 
     
