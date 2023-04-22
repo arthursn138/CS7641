@@ -394,7 +394,7 @@ class dlnet:
             else:
                 xnew = x[:, self.iter:]
                 ynew = y[:, self.iter:]
-                self.iter = len(x[1]) % self.iter
+                self.iter = (self.iter + self.batch_size) % len(x[1])
                 xnnew = x[:, :self.iter]
                 ynnew = y[:, :self.iter]
                 # print(xnew.shape)

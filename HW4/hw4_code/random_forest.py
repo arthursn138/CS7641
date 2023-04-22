@@ -34,11 +34,16 @@ class RandomForest(object):
 
         ############# Get Row Indices First - write your code below #####################
         
+        row_idx = np.random.choice(num_training, np.size(np.arange(num_training)))
+        # print(row_idx, row_idx.shape)
 
         #################################################################################
 
         ############# Get Col Indices Second - write your code below ####################
         
+        c = int(np.ceil(0.65  * num_features))
+        col_idx = np.random.choice(num_features, np.size(np.arange(c)), replace=False)
+        # print(col_idx, col_idx.shape)
         
         ##################################################################################
         return row_idx, col_idx
@@ -68,7 +73,25 @@ class RandomForest(object):
         Returns:
             None. Calling this function should train the decision trees held in self.decision_trees
         """
-        raise NotImplementedError
+        
+        # print(np.shape(self.bootstraps_row_indices))
+        # print(np.shape(self.feature_indices))
+        # print(np.shape(self.out_of_bag))
+        # print(np.shape(X))
+        # print(np.shape(y))
+        # print(X[self.bootstraps_row_indices[0]].shape)
+        # print(self.feature_indices[0])
+
+        for i in range(self.n_estimators):
+            self.bootstrapping(X.shape[0], X.shape[1])
+            xb = X[self.bootstraps_row_indices[i]]
+            xb = X[:, self.feature_indices[i]]
+            yb = y[self.bootstraps_row_indices[i]]
+            # print("i:", i)
+            # print("X:", np.shape(X))
+            # print("y:", np.shape(y))
+            self.decision_trees[i].fit(xb, yb)
+
 
     def OOB_score(self, X, y):
         # helper function. You don't have to modify it
@@ -111,9 +134,8 @@ class RandomForest(object):
             max_features: a float between 0.0-1.0 (e.g 0.1)
         """
         # answers that consistently worked with both hidden and training/testing data
-        n_estimators = None
-        max_depth = None
-        max_features = None
+        n_estimators = 6
+        max_depth = 11
+        max_features = 0.9
 
-        raise NotImplementedError #remove this once values added
         return n_estimators, max_depth, max_features
